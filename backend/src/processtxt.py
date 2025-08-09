@@ -1,38 +1,56 @@
-import pandas as pd
-import sqlite3 
+import os
+import re
+from pathlib import Path
+from datetime import datetime
 
-file_path = "/Users/jordangoodman/programming/txappraisal/backend/data/daf802.txt"
-db_path = "/Users/jordangoodman/programming/txappraisal/backend/data/rrc_permits.db"
+data_directory = "/Users/jordangoodman/programming/txappraisal/backend/data"
+out_path = Path(data_directory) / "all_dat_combined.txt"
 
-colspecs_01 = [
-    (0, 2), (2, 14), (14, 46), (46, 56), (56, 64),
-    (64, 70), (70, 110), (110, 116), (116, 117), (117, 119), (119, 127)
-]
-names_01 = [
-    "record_type", "permit_number", "operator_name", "api_number", "issue_date",
-    "field_number", "field_name", "well_number", "status_code", "purpose_code", "filing_date"
-]
-df01 = pd.read_fwf(file_path, colspecs=colspecs_01, names=names_01, dtype=str, encoding="latin1")
+# Match files like:
+#   foo.dat
+#   foo.dat.03-31-2021
+pat = re.compile(r"\.dat(?:\.(\d{2}-\d{2}-\d{4}))?$", re.IGNORECASE)
 
-df01 = df01[df01["record_type"] == "01"]
+def parse_date_from_name(name: str):
+    m = pat.search(name)
+    if not m:
+        return None
+    ds = m.group(1)
+    if not ds:
+        return None
+    try:
+        return datetime.strptime(ds, "%m-%d-%Y")
+    except ValueError:
+        return None
 
-colspecs_02 = [
-    (0, 2), (2, 14), (14, 54), (54, 60), (60, 63),
-    (63, 72), (72, 82), (82, 92), (92, 132), (132, 140), (140, 180)
-]   
-names_02 = [
-    "record_type", "permit_number", "lease_name", "well_number", "county_code",
-    "abstract_number", "block", "section", "survey_name", "depth_info", "surface_location"
-]
-df02 = pd.read_fwf(file_path, colspecs=colspecs_02, names=names_02, dtype=str, encoding="latin1")
+# Collect matching files (non-recursive)
+candidates = []
+for p in Path(data_directory).iterdir():
+    if not p.is_file():
+        continue
+    if pat.search(p.name):
+        candidates.append(p)
 
-df02 = df02[df02["record_type"] == "02"]
+if not candidates:
+    raise FileNotFoundError(f"No .dat or .dat.MM-DD-YYYY files found in {data_directory}")
 
-df_final = df01.merge(df02, on="permit_number", how="left", suffixes=("_01", "_02"))
+# Sort by embedded date if present, else by name
+candidates.sort(key=lambda p: (parse_date_from_name(p.name) or datetime.min, p.name.lower()))
 
+BUF = 1024 * 1024  # 1 MB buffer
 
-conn = sqlite3.connect(db_path)
-df_final.to_sql("permits", conn, if_exists="replace", index=False)
-conn.commit()
-conn.close()
-print(f"SQLite database created at: {db_path}")
+with open(out_path, "wb") as dst:
+    for p in candidates:
+        print(f"Appending {p.name}")
+        last_byte = None
+        with open(p, "rb") as src:
+            while True:
+                chunk = src.read(BUF)
+                if not chunk:
+                    break
+                dst.write(chunk)
+                last_byte = chunk[-1:]
+        if last_byte not in (None, b"\n"):
+            dst.write(b"\n")
+
+print(f"Wrote {len(candidates)} files into {out_path}")

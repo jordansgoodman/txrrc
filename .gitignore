@@ -10,5 +10,7 @@ wheels/
 .venv
 
 # ignore big files
+backend/data/
 *.txt
 *.db 
+.ds_store
