@@ -28,5 +28,14 @@ names_01 = [
 df_01 = pd.read_fwf(pd.io.common.StringIO("\n".join(records["01"])),
                     colspecs=colspecs_01, names=names_01)
 
-print(df_01.head())
 
+def glimpse(df, max_width=100):
+    print(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}\n")
+    for col in df.columns:
+        col_data = df[col].astype(str).head().tolist()
+        values = ", ".join(col_data)
+        if len(values) > max_width:
+            values = values[:max_width] + "..."
+        print(f"{col} ({df[col].dtype}): {values}")
+
+glimpse(df_01)
