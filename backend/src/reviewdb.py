@@ -9,7 +9,7 @@ conn = sqlite3.connect(db_path)
 
 df = pd.read_sql("select * from permits;",conn)
 
-def glimpse(df, max_width=20):
+def glimpse(df, max_width=50):
     print(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}\n")
     for col in df.columns:
         col_data = df[col].astype(str).head().tolist()
@@ -18,5 +18,6 @@ def glimpse(df, max_width=20):
             values = values[:max_width] + "..."
         print(f"{col} ({df[col].dtype}): {values}")
 
-
 glimpse(df)
+
+

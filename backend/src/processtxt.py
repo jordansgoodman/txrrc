@@ -150,6 +150,8 @@ NAMES: Dict[str, List[str]] = {
     ],
 }
 
+
+
 def slice_by_colspec(line: str, colspecs: List[Tuple[int, int]]) -> List[str]:
     return [line[a:b] for a, b in colspecs]
 
