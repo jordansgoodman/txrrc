@@ -9,8 +9,7 @@ from selenium.webdriver.common.by import By
 # Config
 # ----------------------------
 base_url = "https://mft.rrc.texas.gov/link/f5dfea9c-bb39-4a5e-a44e-fb522e088cba"
-
-download_dir = "/Users/jordangoodman/programming/txappraisal/backend/data/download"
+download_dir = os.path.join(os.path.expanduser("~"), "Documents", "programming", "txrrc", "backend", "data", "download")
 os.makedirs(download_dir, exist_ok=True)
 
 # ----------------------------

@@ -11,16 +11,27 @@ import shutil
 # ----------------------------
 # Paths / Config
 # ----------------------------
-root = Path("/Users/jordangoodman/programming/txappraisal/backend")
+
+# Base project root - dynamically resolves to your home directory
+
+root = Path.home() / "Documents" / "programming" / "txrrc" / "backend"
 downloads_dir = root / "data" / "download"       # input: zips and .dat live here
 txt_dir       = root / "data" / "txt"            # output: combined txt
 db_dir        = root / "data" / "database"       # output: sqlite db
 log_dir       = root / "data" / "log"            # logs folder
+log_path = log_dir / "process.log"
+out_path = txt_dir / "all_dat_combined.txt"
+db_path  = db_dir / "rrc_permits.db"
 
-log_path      = log_dir / "process.log"
-out_path      = txt_dir / "all_dat_combined.txt"
-db_path       = db_dir / "rrc_permits.db"
-ENCODING      = "latin1"
+ENCODING = "latin1"
+
+# ----------------------------
+# Ensure folders exist
+# ----------------------------
+downloads_dir.mkdir(parents=True, exist_ok=True)
+txt_dir.mkdir(parents=True, exist_ok=True)
+db_dir.mkdir(parents=True, exist_ok=True)
+log_dir.mkdir(parents=True, exist_ok=True)
 
 # Ensure folders exist
 downloads_dir.mkdir(parents=True, exist_ok=True)
