@@ -15,10 +15,16 @@ with open(file_path, "r", encoding="latin1") as f:
 for rt, lines in records.items():
     print(f"Record Type {rt}: {len(lines)} lines")
 
-
 colspecs_01 = [
-    (0, 2), (2, 14), (14, 46), (46, 54), (54, 62),
-    (62, 102), (102, 108), (108, 148), (148, 154)
+    (0, 2),     # record_type
+    (2, 14),    # permit_number
+    (14, 44),   # well_name (was too short before)
+    (44, 52),   # api_number
+    (52, 60),   # issue_date
+    (60, 100),  # operator_name
+    (100, 106), # field_number
+    (106, 146), # field_name
+    (146, 152), # well_number
 ]
 
 names_01 = [
@@ -51,7 +57,6 @@ names_02 = [
     "longitude"
 ]
 
-
 colspecs_03 = [(0,2),(2,14),(14,50)]
 names_03 = ["record_type","permit_number","status_flag"]
 
@@ -76,7 +81,5 @@ df_04 = parse_records(records["04"], colspecs_04, names_04)
 df_05 = parse_records(records["05"], colspecs_05, names_05)
 
 # print("01 Header:", df_01.head())
-#print("02 Location:", df_02.head())
-#print("03 Status:", df_03.head())
-#print("04 Wellbore:", df_04.head())
-# print("05 Survey:", df_05.head())
+
+print(df_01)
