@@ -6,6 +6,20 @@ file_path = Path("/home/admin/Documents/programming/txrrc/backend/data/download/
 
 records = { "01": [], "02": [], "03": [], "04": [], "05": [] }
 
+
+# helper functions
+
+def glimpse(df, max_width=100):
+    print(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}\n")
+    for col in df.columns:
+        col_data = df[col].astype(str).head().tolist()
+        values = ", ".join(col_data)
+        if len(values) > max_width:
+            values = values[:max_width] + "..."
+        print(f"{col} ({df[col].dtype}): {values}")
+
+# creating records
+
 with open(file_path, "r", encoding="latin1") as f:
     for line in f:
         record_type = line[:2]
@@ -15,71 +29,48 @@ with open(file_path, "r", encoding="latin1") as f:
 for rt, lines in records.items():
     print(f"Record Type {rt}: {len(lines)} lines")
 
+# processing 01 records
+
 colspecs_01 = [
-    (0, 2),     # record_type
-    (2, 14),    # permit_number
-    (14, 44),   # well_name (was too short before)
-    (44, 52),   # api_number
-    (52, 60),   # issue_date
-    (60, 100),  # operator_name
-    (100, 106), # field_number
-    (106, 146), # field_name
-    (146, 152), # well_number
+    (0, 2),     # record_type (01) # validated
+    (2, 9),     # status_number (drilling permit status number) # validated
+    (9, 11),    # status_sequence_number # validated
+    (11, 14),   # county_code # validated
+    (14, 46),   # lease_name (32 chars) # validated
+    (46, 48),   # district # validated
+    (48, 54),   # operator_number (6 chars)# validated
+    (58, 66),   # date_app_received (CCYYMMDD) # validated
+    (66, 98),    # operator_name # validated # validated
+    (100, 101),  # status_of_app_flag (1 character only!) # validated
+    (113, 119),   # problem_flags (11 chars) # need to fix
+    (106, 113),  # permit_number (7 chars)
+    (113, 121),  # issue_date (8 chars)
+    (121, 129),  # withdrawn_date (8 chars)
+    (129, 135),  # well_number (6 chars)
+    (135, 212),  # reserved / filler
 ]
 
+
 names_01 = [
-    "record_type", "permit_number", "well_name", "api_number",
-    "issue_date", "operator_name", "field_number", "field_name", "well_number"
+    "record_type",
+    "status_number",
+    "status_sequence_number",
+    "county_code",
+    "lease_name",
+    "district",
+    "operator_number",
+    "date_app_received",
+    "operator_name",
+    "status_of_app_flag",
+    "problem_flags",
+    "permit_number",
+    "issue_date",
+    "withdrawn_date",
+    "well_number",
+    "reserved"
 ]
 
 df_01 = pd.read_fwf(StringIO("\n".join(records["01"])),
-                    colspecs=colspecs_01, names=names_01)
+                    colspecs=colspecs_01, names=names_01,dtype='str')
 
-colspecs_02 = [
-    (0, 2), (2, 14), (14, 54), (54, 60), (60, 63),
-    (63, 72), (72, 82), (82, 92), (92, 132), (132, 140),
-    (140, 160), (160, 170), (170, 180)
-]
-
-names_02 = [
-    "record_type",
-    "permit_number",
-    "lease_name",
-    "well_number",
-    "county_code",
-    "abstract_number",
-    "block",
-    "section",
-    "survey_name",
-    "depth_info",
-    "surface_location",
-    "latitude",
-    "longitude"
-]
-
-colspecs_03 = [(0,2),(2,14),(14,50)]
-names_03 = ["record_type","permit_number","status_flag"]
-
-colspecs_04 = [(0,2),(2,14),(14,46),(46,72)]
-names_04 = ["record_type","permit_number","well_name","misc_data"]
-
-
-colspecs_05 = [(0,2),(2,14),(14,40),(40,92),(92,262)]
-names_05 = ["record_type","permit_number","township","survey_name","other_survey_data"]
-
-
-def parse_records(lines, colspecs, names):
-    if not lines:
-        return pd.DataFrame(columns=names)
-    return pd.read_fwf(StringIO("\n".join(lines)),
-                       colspecs=colspecs, names=names, dtype=str)
-
-df_01 = parse_records(records["01"], colspecs_01, names_01)
-df_02 = parse_records(records["02"], colspecs_02, names_02)
-df_03 = parse_records(records["03"], colspecs_03, names_03)
-df_04 = parse_records(records["04"], colspecs_04, names_04)
-df_05 = parse_records(records["05"], colspecs_05, names_05)
-
-# print("01 Header:", df_01.head())
-
-print(df_01)
+glimpse(df_01)
