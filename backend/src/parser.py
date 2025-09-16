@@ -42,12 +42,12 @@ colspecs_01 = [
     (58, 66),   # date_app_received (CCYYMMDD) # validated
     (66, 98),    # operator_name # validated # validated
     (100, 101),  # status_of_app_flag (1 character only!) # validated
-    (113, 119),   # problem_flags (11 chars) # need to fix
-    (106, 113),  # permit_number (7 chars)
-    (113, 121),  # issue_date (8 chars)
-    (121, 129),  # withdrawn_date (8 chars)
-    (129, 135),  # well_number (6 chars)
-    (135, 212),  # reserved / filler
+    (101, 112),   # problem_flags (11 chars) # need to fix
+    (112, 119),  # permit_number (7 chars)
+    (119, 127),  # issue_date (8 chars) 
+    (127, 135),  # withdrawn_date (8 chars)
+    (129, 135),  # well_number (6 chars) # need to validate
+    (135, 212),  # reserved / filler # need to validate
 ]
 
 
