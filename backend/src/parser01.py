@@ -3,7 +3,6 @@ import pandas as pd
 import sqlite3
 from io import StringIO
 
-# Root paths
 root = Path.home() / "Documents" / "programming" / "txrrc" / "backend"
 downloads_dir = root / "data" / "download"       # input: zips and .dat live here
 txt_dir       = root / "data" / "txt"            # output: combined txt
@@ -15,10 +14,8 @@ db_path  = db_dir / "rrc_permits.db"
 
 ENCODING = "latin1"
 
-# make sure database folder exists
 db_dir.mkdir(parents=True, exist_ok=True)
 
-# record structures
 colspecs_01 = [
     (0, 2),     # record_type
     (2, 9),     # status_number
