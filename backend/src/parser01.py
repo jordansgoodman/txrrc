@@ -77,3 +77,5 @@ for file in downloads_dir.glob("*.dat*"):
             df_01.to_sql("records01", conn, if_exists="append", index=False)
 
 print(f"All 01 records appended into {db_path}")
+
+
