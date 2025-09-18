@@ -16,6 +16,8 @@ ENCODING = "latin1"
 
 db_dir.mkdir(parents=True, exist_ok=True)
 
+# record01
+
 colspecs_01 = [
     (0, 2),     # record_type
     (2, 9),     # status_number
@@ -77,5 +79,3 @@ for file in downloads_dir.glob("*.dat*"):
             df_01.to_sql("records01", conn, if_exists="append", index=False)
 
 print(f"All 01 records appended into {db_path}")
-
-
