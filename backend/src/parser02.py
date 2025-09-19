@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 import pandas as pd
 import sqlite3
@@ -26,24 +27,21 @@ colspecs_02 = [
     (50, 52),   # sidetrack_flag (2 chars)
     (54, 56),   # county_code (2 chars)
     (56, 63),   # api_number (8 chars)
-    (63, 67),   # field_number (8 chars) # validated
-
-
-    (70, 102),  # field_name (32 chars)
-    (102, 134), # operator_name (32 chars)
-    (134, 142), # spud_date (CCYYMMDD)
-    (142, 150), # completion_date (CCYYMMDD)
-    (150, 158), # plug_back_date (CCYYMMDD)
-    (158, 166), # test_date (CCYYMMDD)
-    (166, 174), # shut_in_date (CCYYMMDD)
-    (174, 210), # surface_location (36 chars)
-    (210, 246), # bottom_hole_location (36 chars)
-    (246, 254), # total_depth (8 chars)
-    (254, 262), # vertical_depth (8 chars)
-    (262, 270), # horizontal_length (8 chars)
-    (270, 278), # acreage (8 chars)
-    (278, 286), # spacing (8 chars)
-    (286, 326), # remarks (40 chars)
+    (63, 67),   # field_number (8 chars) 
+    (345, 352),  # field_name (32 chars)
+    (98, 105), # total_depth (8 chars)
+    (105, 110), # vertical_depth (8 chars)
+    (114, 121), # horizontal_length (9 chars) 
+    (121, 129), # spud_date (CCYYMMDD)
+    (129, 137), # completion_date (CCYYMMDD) 
+    (137, 145), # plug_back_date (CCYYMMDD)
+    (145, 153), # test_date (CCYYMMDD)
+    (153, 161), # shut_in_date (CCYYMMDD) 
+    (161, 195), # surface_location (36 chars) 
+    (400, 433), # bottom_hole_location (36 chars) 
+    (323, 330), # acreage (8 chars)
+    (330, 339), # spacing (8 chars)
+    (433, 500), # remarks (40 chars)
 ]
 
 names_02 = [
@@ -56,7 +54,9 @@ names_02 = [
     "api_number",
     "field_number",
     "field_name",
-    "operator_name",
+    "total_depth",
+    "vertical_depth",
+    "horizontal_length",
     "spud_date",
     "completion_date",
     "plug_back_date",
@@ -64,14 +64,10 @@ names_02 = [
     "shut_in_date",
     "surface_location",
     "bottom_hole_location",
-    "total_depth",
-    "vertical_depth",
-    "horizontal_length",
     "acreage",
     "spacing",
     "remarks",
 ]
-
 with sqlite3.connect(db_path) as conn:
     cur = conn.cursor()
     cur.execute("DROP TABLE IF EXISTS records02;")
@@ -101,8 +97,35 @@ for file in downloads_dir.glob("*.dat*"):
             df_02["sidetrack_flag"]
             .str.strip()
             .replace("", "00")           # blank → "00" (no sidetrack)
-            .apply(lambda x: x.zfill(2) if x.isdigit() else x)
-) 
+            .apply(lambda x: x.zfill(2) if x.isdigit() else x))
+
+        df_02["total_depth"] = df_02["total_depth"].str.lstrip("0") 
+
+        df_02["bottom_hole_location"] = df_02["bottom_hole_location"].str.strip()
+
+        def parse_bh_location(loc):
+            """
+            Parse bottom-hole location string into offset/direction components.
+            Example: '00343000SOUTH        00283000WEST'
+            Returns (3430, 'SOUTH', 2830, 'WEST')
+            """
+            if not isinstance(loc, str) or loc.strip() == "":
+                return (None, None, None, None)
+
+            # Regex: 1–8 digits + direction (NORTH/SOUTH/EAST/WEST)
+            matches = re.findall(r"(\d+)\s*(NORTH|SOUTH|EAST|WEST)", loc, flags=re.IGNORECASE)
+
+            if len(matches) == 2:
+                (ns_val, ns_dir), (ew_val, ew_dir) = matches
+                return (int(ns_val) // 100, ns_dir.upper(), int(ew_val) // 100, ew_dir.upper())
+            else:
+                return (None, None, None, None)
+                
+                
+        df_02[["bh_offset_ns", "bh_dir_ns", "bh_offset_ew", "bh_dir_ew"]] = df_02["bottom_hole_location"].apply(
+        lambda x: pd.Series(parse_bh_location(x)))
+
+       
         with sqlite3.connect(db_path) as conn:
             df_02.to_sql("records02", conn, if_exists="append", index=False)
 
