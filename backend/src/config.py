@@ -1,17 +1,20 @@
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = BASE_DIR / "data"
-DOWNLOAD_DIR = DATA_DIR / "download"
-DB_PATH = DATA_DIR / "database" / "rrc_permits.db"
+ROOT_DIR = Path.home() / "Documents" / "programming" / "txrrc" / "backend"
 
+DOWNLOADS_DIR = ROOT_DIR / "data" / "download"
+DB_DIR = ROOT_DIR / "data" / "database"
 
-class Settings:
-    DATABASE_URL = f"sqlite:///{DB_PATH}"
-    STRIPE_API_KEY = "api-key"
+DB_PATH = DB_DIR / "rrc_permits.db"
 
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
-(DB_PATH.parent).mkdir(parents=True, exist_ok=True)
+ENCODING = "latin1"
 
-settings = Settings()
+# Ensure directories exist
+DB_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Base URL for pulling permit data
+BASE_URL = "https://mft.rrc.texas.gov/link/f5dfea9c-bb39-4a5e-a44e-fb522e088cba"
+
+# Selenium settings
+SELENIUM_HEADLESS = True
