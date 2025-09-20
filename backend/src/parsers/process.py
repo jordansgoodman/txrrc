@@ -197,7 +197,7 @@ with sqlite3.connect(db_path) as conn:
                     r14.latitude,
                     r14.longitude 
                 from records02 r2 
-                join records14 r14 on r2.permit_number = r14.permit_number 
+                left join records14 r14 on r2.permit_number = r14.permit_number 
 
                 )
 
