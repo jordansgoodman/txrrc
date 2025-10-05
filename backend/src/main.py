@@ -16,4 +16,3 @@ app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Texas RRC Oil Permits API"}
-
