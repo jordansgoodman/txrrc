@@ -20,13 +20,6 @@ Data refresh and zip file management
 
 Organized folder layout for clear workflows
 
-# Folder Structure
-
-backend/data/download – raw files from the RRC site
-backend/data/database – SQLite or DuckDB databases
-backend/src – main source code and logic
-backend/src/parsers – fixed-width parsing and ETL scripts
-backend/src/api – FastAPI endpoints and routes
 
 # How It Works
 
